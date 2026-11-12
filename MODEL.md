@@ -1,6 +1,6 @@
 # MODEL.md: Modeling and Implementation Decisions
 
-Design log of the static analysis (`chop.py`) and the runtime harness (`runtime/`): one entry per decision, with the choice, the reason and where it lives in the code. Code comments refer to these entries by number (F6, R15, ...). Dates refer to 2026 and record when a decision was made during development; TPC-C clause numbers refer to rev. 5.11. Entries about experiments that are not in the paper (full TPC-C mix, coarsening chain, district layout, local runs) document the harness and are kept for completeness.
+Design log of the static analysis (`chop.py`) and the runtime harness (`runtime/`): one entry per decision, with the choice, the reason and where it lives in the code. Code comments refer to these entries by number (F6, R15, ...). Dates refer to 2026 and record when a decision was made during development; TPC-C clause numbers refer to rev. 5.11. Entries about experiments that are not in the paper (full TPC-C mix, coarsening chain, district layout, local runs) document the harness and are kept for completeness. **Terminology:** "CPR" (consistency preservation rule) is the development name for a trigger, B-inc and B-rec are the incremental and recomputing triggers, and an "arm" is a measured variant.
 
 ---
 
