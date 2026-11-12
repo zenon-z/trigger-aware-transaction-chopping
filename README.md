@@ -1,6 +1,6 @@
 # Trigger-Aware-Finechop: Code and Data
 
-Code, measured data and figures for the paper *Trigger-Aware-Finechop: Serializable Execution of Chopped Transactions in the Presence of Triggers* (Zenon Zacouris, Maribel Acosta).
+Code, measured data and figures for the paper *Trigger-Aware-Finechop: Serializable Execution of Chopped Transactions in the Presence of Triggers* (Zenon Zacouris, Benedikt Jutz, Ralf Reussner, Maribel Acosta).
 
 **Trigger-Aware-Finechop** extends Shasha et al.'s FineChop so that a transaction's triggered operations are taken into account: conflicts are tested on an operation together with everything it triggers, and a triggered operation always stays in the piece of the operation that triggered it.
 
