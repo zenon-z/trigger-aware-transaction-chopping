@@ -1,0 +1,56 @@
+
+=== SmallBank
+   template                none           A D-templates           D
+   Balance                0/1/2       0/1/2       0/1/2      0/0/3*
+   DepositChecking        0/1/1       0/1/1       0/1/1      0/0/2*
+   TransactSavings        0/1/1       0/1/1       0/1/1      0/0/2*
+   Amalgamate             0/2/3       0/2/3       0/2/3      0/0/5*
+   WriteCheck             0/1/3       0/1/3       0/1/3      0/0/4*
+   UpdateName                 -           -       0/0/1       0/0/1
+   cell = free hot increments / free reads / |contended piece|.
+   Free hot increments count CPR-triggered increments too; the other columns count original operations only.
+   * = merge: contended piece differs from its reference (none, or X-templates); † = a CPR blocked a rollback hoist (merge from rollback-safety, not conflict)
+
+=== SmallBank  subset ['Balance', 'DepositChecking']
+   template                none           A D-templates           D
+   Balance                0/2/1       0/2/1       0/2/1      0/1/2*
+   DepositChecking        0/1/1       0/1/1       0/1/1      0/0/2*
+   UpdateName                 -           -       0/0/1       0/0/1
+   cell = free hot increments / free reads / |contended piece|.
+   Free hot increments count CPR-triggered increments too; the other columns count original operations only.
+   * = merge: contended piece differs from its reference (none, or X-templates); † = a CPR blocked a rollback hoist (merge from rollback-safety, not conflict)
+
+=== SmallBank  subset ['Balance', 'TransactSavings']
+   template                none           A D-templates           D
+   Balance                0/2/1       0/2/1       0/2/1      0/1/2*
+   TransactSavings        0/1/1       0/1/1       0/1/1      0/0/2*
+   UpdateName                 -           -       0/0/1       0/0/1
+   cell = free hot increments / free reads / |contended piece|.
+   Free hot increments count CPR-triggered increments too; the other columns count original operations only.
+   * = merge: contended piece differs from its reference (none, or X-templates); † = a CPR blocked a rollback hoist (merge from rollback-safety, not conflict)
+
+=== SmallBank  subset ['Amalgamate', 'DepositChecking', 'TransactSavings']
+   template                none           A D-templates           D
+   DepositChecking        0/1/1       0/1/1       0/1/1      0/0/2*
+   TransactSavings        0/1/1       0/1/1       0/1/1      0/0/2*
+   Amalgamate             0/2/3       0/2/3       0/2/3      0/0/5*
+   UpdateName                 -           -       0/0/1       0/0/1
+   cell = free hot increments / free reads / |contended piece|.
+   Free hot increments count CPR-triggered increments too; the other columns count original operations only.
+   * = merge: contended piece differs from its reference (none, or X-templates); † = a CPR blocked a rollback hoist (merge from rollback-safety, not conflict)
+
+=== TPC-C
+   template                 none            A  B-templates        B-inc        B-rec  D-templates            D D'-templates           D'
+   NewOrder               2/3/11       2/3/11       2/3/11       2/3/11       2/3/11       2/3/11       2/3/11       2/3/11      2/2/12*
+   Payment                 3/3/2        3/3/2        2/3/2        3/3/2       1/3/3*        3/3/2        3/3/2        3/3/2        3/3/2
+   OrderStatus             0/1/3        0/1/3        0/1/3        0/1/3        0/1/3        0/1/3        0/1/3        0/1/3        0/1/3
+   Delivery                1/0/6        1/0/6        1/0/6        1/0/6        1/0/6        1/0/6        1/0/6        1/0/6        1/0/6
+   UpdatePrice                 -            -            -            -            -        0/0/1        0/0/1            -            -
+   UpdateTax                   -            -            -            -            -            -            -        0/0/1        0/0/1
+   StockLevel      excluded (spec allows it to run below serializability)
+   cell = free hot increments / free reads / |contended piece|.
+   Free hot increments count CPR-triggered increments too; the other columns count original operations only.
+   * = merge: contended piece differs from its reference (none, or X-templates); † = a CPR blocked a rollback hoist (merge from rollback-safety, not conflict)
+   synthetic (not grounded in the benchmark spec): D'
+   Free hot increments that changed against none (rows per warehouse, hottest first):
+   Payment @ B-rec: no longer free: Warehouse.w_ytd (1/wh), District.d_ytd (10/wh); still free: Customer.c_payment_cnt+c_ytd_payment (30000/wh)

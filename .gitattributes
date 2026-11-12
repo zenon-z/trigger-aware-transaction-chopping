@@ -1,0 +1,4 @@
+runtime/VERSION export-subst
+# runtime/ runs on Linux (run_server.sh needs LF); keep LF everywhere, also in git archive
+runtime/** text eol=lf
+*.sh text eol=lf

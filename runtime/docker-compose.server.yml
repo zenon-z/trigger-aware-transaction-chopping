@@ -1,0 +1,65 @@
+name: cpr-chopping-server
+
+# Server setup for the full campaign (reference; run_server.sh starts the same settings with docker run). Same two services as the
+# local docker-compose.yml, plus core pinning and settings sized for a 48-core / 560 GB machine.
+# PG_CPUSET pins Postgres to cores (Shasha's resource-unit factor); run_server.sh sets it per stage.
+#   PG_CPUSET=0-31 docker compose -f docker-compose.server.yml up -d pg-tmpfs
+# Run ONE service at a time. Durability settings stay at Postgres defaults.
+# run_server.sh does not use this file (the server has no compose plugin): its start() runs the
+# same settings with plain `docker run`, but with `--network host` (Postgres on 127.0.0.1 at
+# the ports below, no port forwarding). Keep the two in step.
+
+x-postgres: &postgres
+  image: postgres:16.15
+  environment:
+    POSTGRES_USER: cpr
+    POSTGRES_PASSWORD: cpr
+    POSTGRES_DB: cpr
+  cpuset: "${PG_CPUSET:?set PG_CPUSET, e.g. 0-31}"
+  shm_size: "2gb"
+  command:
+    - "postgres"
+    - "-c"
+    - "max_connections=1000"
+    - "-c"
+    - "shared_buffers=16GB"
+  healthcheck:
+    test: ["CMD-SHELL", "pg_isready -U cpr -d cpr"]
+    interval: 2s
+    timeout: 2s
+    retries: 30
+
+services:
+  pg-tmpfs:
+    <<: *postgres
+    container_name: cpr_chop_srv_tmpfs
+    ports:
+      - "15433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+
+  # pg-tmpfs plus logging of every lock wait longer than 1 ms (stage locklog, MODEL.md R22).
+  # deadlock_timeout = 1 ms also runs the deadlock check after every such wait, which is why the
+  # stage measures this service's cost before its numbers are used.
+  pg-tmpfs-locklog:
+    <<: *postgres
+    container_name: cpr_chop_srv_tmpfs_locklog
+    ports:
+      - "15433:5432"
+    tmpfs:
+      - /var/lib/postgresql/data
+    command: ["postgres", "-c", "max_connections=1000", "-c", "shared_buffers=16GB",
+              "-c", "logging_collector=on", "-c", "log_lock_waits=on",
+              "-c", "deadlock_timeout=1ms", "-c", "log_rotation_size=0",
+              "-c", "log_rotation_age=0"]
+
+  pg-disk:
+    <<: *postgres
+    container_name: cpr_chop_srv_disk
+    ports:
+      - "15434:5432"
+    volumes:
+      - cpr_chop_srv_pgdata:/var/lib/postgresql/data
+
+volumes:
+  cpr_chop_srv_pgdata:
